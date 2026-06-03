@@ -1,4 +1,6 @@
 def learn_theta(data, colors):
+    # theta is max of all blue points
+    # since all blues < all reds, max blue is the separator
     best = None
     for i in range(len(data)):
         if colors[i] == 'blue':
@@ -18,6 +20,7 @@ def compute_ell(data, colors, theta):
 
 
 def minimize_ell(data, colors):
+    # try every data point as a candidate theta, pick the one with min loss
     best_theta = None
     best_loss = None
     for i in range(len(data)):
@@ -29,16 +32,21 @@ def minimize_ell(data, colors):
 
 
 def minimize_ell_sorted(data, colors):
+    # data is sorted; smallest point is blue
+    # loop invariant: after alpha-th iteration,
+    # blue_gt_theta = number of blue points greater than data[alpha - 1]
 
     n = len(data)
     blue_gt_theta = sum(1 for c in colors if c == 'blue') - 1  # all blues except data[0]
 
-    red_lte_theta = 0  
+    red_lte_theta = 0  # no reds <= data[-1] yet... start before first element
+    # L(theta) = red_lte_theta + blue_gt_theta
 
     best_theta = data[0]
-    best_loss = blue_gt_theta 
+    best_loss = blue_gt_theta  # red_lte_theta is 0 at start
 
     for alpha in range(1, n):
+        # theta moves to data[alpha - 1]
         if colors[alpha - 1] == 'red':
             red_lte_theta += 1
         else:
@@ -47,6 +55,6 @@ def minimize_ell_sorted(data, colors):
         loss = red_lte_theta + blue_gt_theta
         if loss < best_loss:
             best_loss = loss
-            best_theta = data[alpha]
+            best_theta = data[alpha - 1]
 
     return float(best_theta)
